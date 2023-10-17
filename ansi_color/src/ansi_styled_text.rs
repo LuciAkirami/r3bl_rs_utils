@@ -77,13 +77,10 @@ pub enum Style {
 mod style_impl {
     use std::fmt::{Display, Formatter, Result};
 
-    use crate::{detect_color_support,
-                Color,
-                ColorSupport,
-                RgbColor,
-                SgrCode,
-                Style,
-                TransformColor};
+    use crate::{
+        detect_color_support, Color, ColorSupport, RgbColor, SgrCode, Style,
+        TransformColor,
+    };
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     enum ColorKind {
@@ -106,6 +103,21 @@ mod style_impl {
                     }
                 )
             }
+
+            ColorSupport::Grayscale => {
+                // Grayscale mode.
+                let color = color.as_grayscale();
+                let index = color.index;
+                write!(
+                    f,
+                    "{}",
+                    match color_kind {
+                        ColorKind::Foreground => SgrCode::ForegroundAnsi256(index),
+                        ColorKind::Background => SgrCode::BackgroundAnsi256(index),
+                    }
+                )
+            }
+
             _ => {
                 // True color mode.
                 let color = color.as_rgb();
@@ -232,6 +244,45 @@ mod display_trait_impl {
             assert_eq!(
                 format!("{0}", eg_2),
                 "\x1b[1m\x1b[38;2;175;215;135m\x1b[48;2;1;1;1mWorld\x1b[0m".to_string()
+            );
+
+            Ok(())
+        }
+
+        #[serial]
+        #[test]
+        fn test_formatted_string_creation_grayscale() -> Result<(), String> {
+            color_support_override_set(ColorSupport::Grayscale);
+            let eg_1 = AnsiStyledText {
+                text: "Hello",
+                style: &[
+                    Style::Bold,
+                    Style::Foreground(Color::Rgb(0, 0, 0)),
+                    Style::Background(Color::Rgb(1, 1, 1)),
+                ],
+            };
+
+            println!("{:?}", format!("{0}", eg_1));
+
+            assert_eq!(
+                format!("{0}", eg_1),
+                "\u{1b}[1m\u{1b}[38;5;16m\u{1b}[48;5;16mHello\u{1b}[0m".to_string()
+            );
+
+            let eg_2 = AnsiStyledText {
+                text: "World",
+                style: &[
+                    Style::Bold,
+                    Style::Foreground(Color::Ansi256(150)),
+                    Style::Background(Color::Rgb(1, 1, 1)),
+                ],
+            };
+
+            println!("{:?}", format!("{0}", eg_2));
+
+            assert_eq!(
+                format!("{0}", eg_2),
+                "\u{1b}[1m\u{1b}[38;5;251m\u{1b}[48;5;16mWorld\u{1b}[0m".to_string()
             );
 
             Ok(())
