@@ -115,4 +115,13 @@ fn print_text(msg: &str) {
         ],
     };
     println!("eg_2: {0}", eg_2);
+
+    let eg_3 = AnsiStyledText {
+        text: "Ansii",
+        style: &[
+            Style::Foreground(Color::HexColor("#ff0000")),
+            Style::Background(Color::Rgb(0,255,0)),
+        ],
+    };
+    println!("eg_3: {0}", eg_3);
 }

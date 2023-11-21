@@ -36,7 +36,7 @@ pub fn select_from_list(
     max_height_row_count: usize,
     max_width_col_count: usize,
     selection_mode: SelectionMode,
-    style: StyleSheet,
+    style: StyleSheet<'_>,
 ) -> Option<Vec<String>> {
     // Don't block tests.
     if let TTYResult::IsNotInteractive = is_fully_uninteractive_terminal() {

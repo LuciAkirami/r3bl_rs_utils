@@ -96,6 +96,14 @@ pub fn convert_rgb_into_ansi256(rgb_color: RgbColor) -> Ansi256Color {
     }
 }
 
+pub fn convert_hex_to_rgb(hex: &str) -> RgbColor {
+    let hex = hex.trim_start_matches('#');
+    let red = u8::from_str_radix(&hex[0..2], 16).unwrap_or(0);
+    let green = u8::from_str_radix(&hex[2..4], 16).unwrap_or(0);
+    let blue = u8::from_str_radix(&hex[4..6], 16).unwrap_or(0);
+    RgbColor { red, green, blue }
+}
+
 mod cube_mapping {
     use crate::RgbColor;
 
@@ -331,7 +339,7 @@ pub use constants::*;
 mod tests {
     use pretty_assertions::assert_eq;
 
-    use crate::{Ansi256Color, RgbColor, TransformColor};
+    use crate::{Ansi256Color, RgbColor, TransformColor, convert_hex_to_rgb};
 
     #[test]
     fn convert_ansi265_into_rgb() {
@@ -397,6 +405,19 @@ mod tests {
                 blue: 238,
             }
         );
+    }
+
+    #[test]
+    fn test_convert_hex_to_rgb() {
+        let rgb = convert_hex_to_rgb("ffffff");
+        assert_eq!(rgb.red, 255);
+        assert_eq!(rgb.green, 255);
+        assert_eq!(rgb.blue, 255);
+
+        let rgb = convert_hex_to_rgb("#2B671C");
+        assert_eq!(rgb.red, 43);
+        assert_eq!(rgb.green, 103);
+        assert_eq!(rgb.blue, 28);
     }
 
     #[test]

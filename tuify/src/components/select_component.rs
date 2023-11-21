@@ -22,9 +22,9 @@ use r3bl_rs_utils_core::*;
 
 use crate::*;
 
-pub struct SelectComponent<W: Write> {
+pub struct SelectComponent<'a, W: Write> {
     pub write: W,
-    pub style: StyleSheet,
+    pub style: StyleSheet<'a>,
 }
 
 const IS_FOCUSED: &str = " › ";
@@ -34,7 +34,7 @@ const MULTI_SELECT_IS_NOT_SELECTED: &str = "☐";
 const SINGLE_SELECT_IS_SELECTED: &str = "◉";
 const SINGLE_SELECT_IS_NOT_SELECTED: &str = "◌";
 
-impl<W: Write> FunctionComponent<W, State> for SelectComponent<W> {
+impl<W: Write> FunctionComponent<W, State> for SelectComponent<'_, W> {
     fn get_write(&mut self) -> &mut W { &mut self.write }
 
     /// If there are more items than the max display height, then we only use max display

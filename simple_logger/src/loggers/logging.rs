@@ -28,7 +28,7 @@ use crate::{config::{TargetPadding, TimeFormat},
             ThreadLogMode,
             ThreadPadding};
 
-pub fn termcolor_to_r3bl_ansi_color(color: &Color) -> Option<RSColor> {
+pub fn termcolor_to_r3bl_ansi_color(color: &Color) -> Option<RSColor<'_>> {
     match color {
         Color::Black => Some(RSColor::Rgb(0, 0, 0)),
         Color::Red => Some(RSColor::Rgb(255, 0, 0)),

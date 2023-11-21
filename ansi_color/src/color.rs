@@ -39,15 +39,16 @@ pub trait TransformColor {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Color {
+pub enum Color<'a> {
     Rgb(u8, u8, u8),
     Ansi256(u8),
+    HexColor(&'a str),
 }
 
 mod color_impl {
     use crate::*;
 
-    impl TransformColor for Color {
+    impl TransformColor for Color<'_> {
         fn as_rgb(&self) -> RgbColor {
             match self {
                 Color::Rgb(r, g, b) => RgbColor {
@@ -56,6 +57,7 @@ mod color_impl {
                     blue: *b,
                 },
                 Color::Ansi256(index) => Ansi256Color { index: *index }.as_rgb(),
+                Color::HexColor(hex) => HexColor { hex: *hex }.as_rgb(),
             }
         }
 
@@ -67,6 +69,7 @@ mod color_impl {
                     blue: *blue,
                 }),
                 Color::Ansi256(index) => Ansi256Color { index: *index },
+                Color::HexColor(hex) => HexColor { hex: *hex }.as_ansi256(),
             }
         }
 
@@ -79,6 +82,7 @@ mod color_impl {
                 })
                 .as_grayscale(),
                 Color::Ansi256(index) => Ansi256Color { index: *index }.as_grayscale(),
+                Color::HexColor(hex) => HexColor { hex: *hex }.as_grayscale(),
             }
         }
     }
@@ -134,5 +138,56 @@ mod ansi_color_impl {
         }
 
         fn as_ansi256(&self) -> Ansi256Color { *self }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HexColor<'a>{
+    pub hex: &'a str,
+}
+
+mod hex_color_impl {
+    use crate::{
+                Ansi256Color,
+                HexColor,
+                RgbColor,
+                TransformColor};
+    
+    use crate::convert::convert_hex_to_rgb;
+
+    impl TransformColor for HexColor<'_> {
+        /// Returns a [RgbColor] representation of the `self` color.
+        fn as_rgb(&self) -> RgbColor {
+            let rgb = convert_hex_to_rgb(&self.hex);
+            RgbColor {
+                red: rgb.red,
+                green: rgb.green,
+                blue: rgb.blue,
+            }
+        }
+
+        /// Returns the index of a color in 256-color ANSI palette approximating the `self`
+        /// color.
+        fn as_ansi256(&self) -> Ansi256Color {
+            let rgb = convert_hex_to_rgb(&self.hex);
+            let rgb = RgbColor {
+                red: rgb.red,
+                green: rgb.green,
+                blue: rgb.blue,
+            };
+            rgb.as_ansi256()
+        }
+
+        /// Returns the index of a color in 256-color ANSI palette approximating the `self`
+        /// color as grayscale.
+        fn as_grayscale(&self) -> Ansi256Color {
+            let rgb = convert_hex_to_rgb(&self.hex);
+            let rgb = RgbColor {
+                red: rgb.red,
+                green: rgb.green,
+                blue: rgb.blue,
+            };
+            rgb.as_grayscale()
+        }
     }
 }

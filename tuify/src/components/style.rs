@@ -18,13 +18,13 @@
 use r3bl_ansi_color::Color;
 
 #[derive(Copy, Clone, Debug)]
-pub struct StyleSheet {
-    pub normal_style: Style,
-    pub selected_style: Style,
-    pub header_style: Style,
+pub struct StyleSheet<'a> {
+    pub normal_style: Style<'a>,
+    pub selected_style: Style<'a>,
+    pub header_style: Style<'a>,
 }
 
-impl Default for StyleSheet {
+impl Default for StyleSheet<'_> {
     fn default() -> Self {
         let normal_style = Style::default();
         let selected_style = Style {
@@ -47,7 +47,7 @@ impl Default for StyleSheet {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct Style {
+pub struct Style<'a>{
     pub bold: bool,
     pub italic: bool,
     pub dim: bool,
@@ -55,11 +55,11 @@ pub struct Style {
     pub reverse: bool,
     pub hidden: bool,
     pub strikethrough: bool,
-    pub fg_color: Color,
-    pub bg_color: Color,
+    pub fg_color: Color<'a>,
+    pub bg_color: Color<'a>,
 }
 
-impl Default for Style {
+impl Default for Style<'_> {
     fn default() -> Self {
         Style {
             bold: false,

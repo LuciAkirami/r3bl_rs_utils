@@ -41,7 +41,7 @@ use crate::*;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct AnsiStyledText<'a> {
     pub text: &'a str,
-    pub style: &'a [Style],
+    pub style: &'a [Style<'a>],
 }
 
 mod ansi_styled_text_impl {
@@ -59,9 +59,9 @@ mod ansi_styled_text_impl {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Style {
-    Foreground(Color),
-    Background(Color),
+pub enum Style<'a> {
+    Foreground(Color<'a>),
+    Background(Color<'a>),
     Bold,
     Dim,
     Italic,
@@ -91,7 +91,7 @@ mod style_impl {
         Background,
     }
 
-    fn fmt_color(color: Color, color_kind: ColorKind, f: &mut Formatter<'_>) -> Result {
+    fn fmt_color(color: Color<'_>, color_kind: ColorKind, f: &mut Formatter<'_>) -> Result {
         match global_color_support::detect() {
             ColorSupport::Ansi256 => {
                 // ANSI 256 color mode.
@@ -137,7 +137,7 @@ mod style_impl {
         }
     }
 
-    impl Display for Style {
+    impl Display for Style<'_>{
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
             match self {
                 Style::Foreground(color) => fmt_color(*color, ColorKind::Foreground, f),
